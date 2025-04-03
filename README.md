@@ -4,4 +4,5 @@ Diversified global vegetable oil production through Camellia oleifera can mitiga
 
 Supplementary Information - Code to compute weights for land suitability assessment
 
-Note: data = pd.read_excel('weight.xlsx')
+Note 1: data = pd.read_excel('weight.xlsx')
+Note 2: software's license for use is Python (https://www.python.org/) 
