@@ -1,0 +1,155 @@
+import pandas as pd
+import numpy as np
+data = pd.read_excel('weight.xlsx')
+data
+
+
+# Preprocessing
+# Preprocessing
+# Delete useless data
+data.drop(["Sample ID"],axis=1,inplace=True)
+# Delete duplicate data
+data.drop_duplicates(inplace=True)
+# delete missing data
+data=data.dropna()
+
+
+# Characteristic standardisation
+y=data["level of suitability"]
+data.drop("level of suitability",axis=1,inplace=True)
+X=data
+from sklearn.preprocessing import StandardScaler
+X = StandardScaler().fit(X).transform(X)
+
+
+
+# Visualisation of indicators correlation
+import matplotlib.pyplot as plt
+import seaborn as sns
+matrix=pd.DataFrame(X).corr()
+cmap = sns.diverging_palette(250, 15, s=75, l=40, n=9, center="light", as_cmap=True)
+plt.figure(figsize=(12, 8))
+sns.heatmap(matrix, center=0, annot=True,fmt='.2f', square=True, cmap=cmap)
+
+
+
+# Model selection and training
+# Train dataset and test dataset division
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3,random_state=10)
+
+
+
+
+# Logistic Regression
+from sklearn.linear_model import LogisticRegression
+cls = LogisticRegression()
+cls.fit(X_train, y_train)
+print(cls.coef_[0])
+LR_pred=cls.predict(X_train)
+LR_test_pred=cls.predict(X_test)
+
+
+
+# Support Vector Machines
+from sklearn.svm import SVC
+cls = SVC()
+cls.fit(X_train, y_train)
+SVC_pred=cls.predict(X_train)
+SVC_test_pred=cls.predict(X_test)
+
+
+
+#Random Forest
+from sklearn.ensemble import RandomForestClassifier
+cls = RandomForestClassifier(max_depth=50, max_features=2, min_samples_leaf=1,
+min_samples_split=7, n_estimators=80,random_state=0)
+cls.fit(X_train, y_train)
+print(cls.feature_importances_)
+RF_pred=cls.predict(X_train)
+RF_test_pred=cls.predict(X_test)
+
+
+
+#Decision Tree
+from sklearn.tree import DecisionTreeClassifier
+cls = DecisionTreeClassifier()
+cls.fit(X_train, y_train)
+print(cls.feature_importances_)
+DT_pred=cls.predict(X_train)
+DT_test_pred=cls.predict(X_test)
+
+
+
+# Model Evaluation
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+import matplotlib.pyplot as plt
+import numpy as np
+#Train dataset
+LR_train_acc=accuracy_score(y_train, LR_pred)
+SVC_train_acc=accuracy_score(y_train, SVC_pred)
+RF_train_acc=accuracy_score(y_train, RF_pred)
+DT_train_acc=accuracy_score(y_train, DT_pred)
+LR_train_pre=precision_score(y_train, LR_pred, average='macro')
+SVC_train_pre=precision_score(y_train, SVC_pred, average='macro')
+RF_train_pre=precision_score(y_train, RF_pred, average='macro')
+DT_train_pre=precision_score(y_train, DT_pred, average='macro')
+LR_train_rec=recall_score(y_train, LR_pred, average='macro')
+SVC_train_rec=recall_score(y_train, SVC_pred, average='macro')
+RF_train_rec=recall_score(y_train, RF_pred, average='macro')
+DT_train_rec=recall_score(y_train, DT_pred, average='macro')
+# Mapping
+plt.figure()
+bar_width=0.1
+x = np.arange(4)
+x_tick=["LR","SVM","RF","DT"]
+acc = np.array([LR_train_acc, SVC_train_acc, RF_train_acc, DT_train_acc])
+pre = np.array([LR_train_pre, SVC_train_pre, RF_train_pre, DT_train_pre])
+rec = np.array([LR_train_rec, SVC_train_rec, RF_train_rec, DT_train_rec])
+plt.bar(x, acc, bar_width, align="center", color="c", label="train_accuracy")
+plt.bar(x+bar_width, pre, bar_width, align="center", color="b", label="train_precision")
+plt.bar(x+2*bar_width, rec, bar_width, align="center", color="r", label="train_recall")
+plt.xticks(x+bar_width*3/4, x_tick)
+plt.xlabel("different models")
+plt.ylabel("train_evaluate")
+plt.title("train_evaluate of different models")
+plt.legend(bbox_to_anchor=(1.05, 0), loc=3, borderaxespad=0)
+plt.show()
+
+
+
+#Test dataset
+LR_test_acc=accuracy_score(y_test, LR_test_pred)
+SVC_test_acc=accuracy_score(y_test, SVC_test_pred)
+RF_test_acc=accuracy_score(y_test, RF_test_pred)
+DT_test_acc=accuracy_score(y_test, DT_test_pred)
+LR_test_pre=precision_score(y_test, LR_test_pred, average='macro')
+SVC_test_pre=precision_score(y_test, SVC_test_pred, average='macro')
+RF_test_pre=precision_score(y_test, RF_test_pred, average='macro')
+DT_test_pre=precision_score(y_test, DT_test_pred, average='macro')
+LR_test_rec=recall_score(y_test, LR_test_pred, average='macro')
+SVC_test_rec=recall_score(y_test, SVC_test_pred, average='macro')
+RF_test_rec=recall_score(y_test, RF_test_pred, average='macro')
+DT_test_rec=recall_score(y_test, DT_test_pred, average='macro')
+# Mapping
+plt.figure()
+bar_width=0.1
+x = np.arange(4)
+x_tick=["LR","SVM","RF","DT"]
+acc = np.array([LR_test_acc, SVC_test_acc, RF_test_acc, DT_test_acc])
+pre = np.array([LR_test_pre, SVC_test_pre, RF_test_pre, DT_test_pre])
+rec = np.array([LR_test_rec, SVC_test_rec, RF_test_rec, DT_test_rec])
+plt.bar(x, acc, bar_width, align="center", color="c", label="test_accuracy")
+plt.bar(x+bar_width, pre, bar_width, align="center", color="b", label="test_precision")
+plt.bar(x+2*bar_width, rec, bar_width, align="center", color="r", label="test_recall")
+plt.xticks(x+bar_width*3/4, x_tick)
+plt.xlabel("different models")
+plt.ylabel("test_evaluate")
+plt.title("test_evaluate of different models")
+plt.legend(bbox_to_anchor=(1.05, 0), loc=3, borderaxespad=0)
+plt.show()
+
+
+
+
+
